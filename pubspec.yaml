@@ -1,14 +1,12 @@
-
 name: notesapp_flutter
-description: "notesapp consume api"
+description: 'notesapp consume api'
 
-publish_to: 'none' 
+publish_to: 'none'
 
 version: 1.0.0+1
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
-
 
 dependencies:
   flutter:
@@ -22,11 +20,10 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^3.0.0
 
-
 flutter:
   uses-material-design: true
-  assets:
-    - assets/
+  # assets:
+  # - assets/
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
   # fonts:
