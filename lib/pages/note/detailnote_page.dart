@@ -2,31 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:notesapp_flutter/models/note_model.dart';
 import 'package:notesapp_flutter/utils/extensions/date_formatting.dart';
 
-class DetailNotePage extends StatefulWidget {
+class DetailNotePage extends StatelessWidget {
   final NoteModel note;
   const DetailNotePage({super.key, required this.note});
-
-  @override
-  State<DetailNotePage> createState() => _DetailNotePageState();
-}
-
-class _DetailNotePageState extends State<DetailNotePage> {
-  late TextEditingController _titleCtrl;
-  late TextEditingController _descriptionCtrl;
-
-  @override
-  void initState() {
-    _titleCtrl = TextEditingController(text: widget.note.title);
-    _descriptionCtrl = TextEditingController(text: widget.note.body);
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _titleCtrl.dispose();
-    _descriptionCtrl.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +12,7 @@ class _DetailNotePageState extends State<DetailNotePage> {
       onTap: FocusScope.of(context).unfocus,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Detail"),
+          title: const Text("Detail Note"),
         ),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15.0),
@@ -45,21 +23,17 @@ class _DetailNotePageState extends State<DetailNotePage> {
               ListTile(
                 visualDensity: VisualDensity.compact,
                 contentPadding: EdgeInsets.zero,
-                title: TextField(
-                  controller: _titleCtrl,
+                title: Text(
+                  note.title,
                   style: Theme.of(context).textTheme.headlineLarge!.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                  decoration: const InputDecoration(
-                    hintText: "Title",
-                    border: InputBorder.none,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
                 subtitle: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      ...widget.note.tags.map(
+                      ...note.tags.map(
                         (tag) => Padding(
                           padding: const EdgeInsets.only(right: 5.0),
                           child: Text("#$tag"),
@@ -74,19 +48,14 @@ class _DetailNotePageState extends State<DetailNotePage> {
                 children: [
                   const Icon(Icons.access_time, size: 16),
                   const SizedBox(width: 5),
-                  Text(widget.note.updatedAt.formattedDatetime),
+                  Text(note.updatedAt.formattedDatetime),
                 ],
               ),
               Expanded(
                 child: SingleChildScrollView(
-                  child: TextFormField(
-                    controller: _descriptionCtrl,
+                  child: Text(
+                    note.body,
                     style: Theme.of(context).textTheme.bodyLarge,
-                    decoration: const InputDecoration(
-                      hintText: "Description",
-                      border: InputBorder.none,
-                    ),
-                    maxLines: null,
                   ),
                 ),
               )

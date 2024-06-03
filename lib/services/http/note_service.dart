@@ -24,6 +24,9 @@ class NoteService {
   Future<ResponseModel> saveNote({
     required String title, required String tags, required String body
   }) async {
+    // merubah string to list dipisahkan dengan coma dan menghapus spasi
+    List tagsList = tags.split(",").map((tag) => tag.trim()).toList();
+
     final String? accessToken = await SharedStorageService.getAccessToken();
     final response = await http.post(
       Uri.parse(_baseUrl),
@@ -33,7 +36,7 @@ class NoteService {
       },
       body: jsonEncode({
         "title": title,
-        "tags": tags.split(","),
+        "tags": tagsList,
         "body": body,
       }),
     );
@@ -46,6 +49,22 @@ class NoteService {
 
     String url = "$_baseUrl/$noteId";
     final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        "Content-Type": "application/json; charset=UTF-8",
+        "Authorization": "Bearer $accessToken"
+      },
+    );
+
+    return ResponseModel.fromJson(jsonDecode(response.body));
+  }
+
+  Future<ResponseModel> deleteNotes({required String noteId }) async {
+    final String? accessToken = await SharedStorageService.getAccessToken();
+
+    // https://notesapi.caniget.my.id:443/notes/{id}
+    String url = "$_baseUrl/$noteId";
+    final response = await http.delete(
       Uri.parse(url),
       headers: {
         "Content-Type": "application/json; charset=UTF-8",

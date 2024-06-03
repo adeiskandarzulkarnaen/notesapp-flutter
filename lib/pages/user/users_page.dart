@@ -48,8 +48,8 @@ class _UsersPageState extends State<UsersPage> {
         ),
       ),
 
-      // todo: dapatkan data users dari API
-      /* gunakan ListView.builder() dan/atau FutureBuilder() */
+      // todo: dapatkan data users dari API 
+      // gunakan ListView.builder() dan/atau FutureBuilder()di bagian body
       body: Center(
         child: Text("list of user"),
       ),

@@ -15,13 +15,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _currentTabIndex = 0;
-  late final PageController _pageController;
-
-  @override
-  void initState() {
-    super.initState();
-    _pageController = PageController();
-  }
+  final PageController _pageController = PageController();
 
   @override
   void dispose() {
