@@ -3,12 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:notesapp_flutter/pages/auth/login_page.dart';
 
 void main() {
-    SystemChrome.setSystemUIOverlayStyle(
+  SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarBrightness: Brightness.light,
     ),
   );
+
   runApp(const NotesApp());
 }
 
