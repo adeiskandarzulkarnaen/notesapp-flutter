@@ -46,7 +46,9 @@ class _AddNotePageState extends State<AddNotePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("add new Note"),
+        title: widget.noteModel == null
+            ? const Text("Add New Note")
+            : const Text("Edit Note"),
       ),
       body: SingleChildScrollView(
         child: Padding(
