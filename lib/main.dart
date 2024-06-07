@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:notesapp_flutter/pages/auth/login_page.dart';
+import 'package:notesappflutter/pages/auth/login_page.dart';
 
 void main() {
   SystemChrome.setSystemUIOverlayStyle(
@@ -9,7 +9,6 @@ void main() {
       statusBarBrightness: Brightness.light,
     ),
   );
-
   runApp(const NotesApp());
 }
 

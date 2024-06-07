@@ -1,4 +1,5 @@
 
+
 class NoteModel {
   final String id;
   final String title;
@@ -20,10 +21,9 @@ class NoteModel {
 
   factory NoteModel.fromJson(Map<String, dynamic> json) {
     return NoteModel(
-      id: json['id'],
+      id: json["id"],
       title: json["title"],
-      // tags: json["tags"],
-      tags: List<String>.from(json['tags']),
+      tags: List<String>.from(json["tags"]),
       body: json["body"],
       owner: json["owner"],
       createdAt: json["createdAt"],

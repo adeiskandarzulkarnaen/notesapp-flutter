@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:notesapp_flutter/models/note_model.dart';
-import 'package:notesapp_flutter/utils/extensions/date_formatting.dart';
+import 'package:notesappflutter/models/note_model.dart';
+import 'package:notesappflutter/utils/extensions/date_formatting.dart';
 
 class DetailNotePage extends StatelessWidget {
   final NoteModel note;

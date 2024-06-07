@@ -1,10 +1,11 @@
 
 import 'package:flutter/material.dart';
-import 'package:notesapp_flutter/models/note_model.dart';
-import 'package:notesapp_flutter/models/response_model.dart';
-import 'package:notesapp_flutter/pages/note/addnote_page.dart';
-import 'package:notesapp_flutter/pages/note/detailnote_page.dart';
-import 'package:notesapp_flutter/services/http/note_service.dart';
+import 'package:notesappflutter/models/note_model.dart';
+import 'package:notesappflutter/models/response_model.dart';
+import 'package:notesappflutter/pages/auth/login_page.dart';
+import 'package:notesappflutter/pages/notes/add_note_page.dart';
+import 'package:notesappflutter/pages/notes/detail_note_page.dart';
+import 'package:notesappflutter/services/note_services.dart';
 
 class NotesPage extends StatefulWidget {
   const NotesPage({super.key});
@@ -14,7 +15,7 @@ class NotesPage extends StatefulWidget {
 }
 
 class _NotesPageState extends State<NotesPage> {
-  final NoteService _noteService = NoteService();
+  final NoteServices _noteServices = NoteServices();
 
   @override
   Widget build(BuildContext context) {
@@ -66,54 +67,88 @@ class _NotesPageState extends State<NotesPage> {
                 ),
               ) 
             ),
-            onPressed: () {
-              // todo: do something
-            },
-            icon: const Icon(Icons.info_outline_rounded),
+            onPressed: onExitButtonTapped,
+            icon: const Icon(Icons.exit_to_app),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context, 
-            MaterialPageRoute(builder: (context) {
-              return const AddNotePage();
-            },)
-          );
-        },
-        child: const Icon(Icons.note_add),
-      ),
       body: FutureBuilder(
-        future: _noteService.getNotes(),
+        future: _noteServices.getNotes(), 
         builder: (context, snapshot) {
           if(snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if(snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if(snapshot.hasData) {
-            final ResponseModel responseModel = snapshot.data!;
-
-            final List<NoteModel> notes = List.generate(
-              responseModel.data["notes"].length, 
-              (index) => NoteModel.fromJson(responseModel.data["notes"][index])
-            );
-            
-            return RefreshIndicator(
-              onRefresh: () async => setState((){}),
-              child: ListView.builder(
-                itemCount: notes.length,
-                itemBuilder: (context, index) {
-                  NoteModel note = notes[index];
-                  return NoteCard(note: note, notesServices: _noteService);
-                },
-              ),
-            );
+            return noteListBuilder(responseModel: snapshot.data!);
           } else {
-            return const Center(child: Text('no connectiom'));
+            return const Center(child: Text("No Data"));
           }
         },
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          await Navigator.push(
+            context, 
+            MaterialPageRoute(builder: (context) => const AddNotePage())
+          );
+          setState(() {});
+        },
+        child: const Icon(Icons.note_add),
+      ),
+    );
+  }
+
+  Widget noteListBuilder({ required ResponseModel responseModel}) {
+    final List notes = responseModel.data["notes"];
+
+    final listOfNoteModel = List.generate(
+      notes.length, 
+      (index) => NoteModel.fromJson(notes[index])
+    );
+
+    return RefreshIndicator(
+      onRefresh: () async { 
+        setState(() {});
+      },
+      child: ListView.builder(
+        itemCount: listOfNoteModel.length,
+        itemBuilder: (context, index) {
+          final noteModel = listOfNoteModel[index];
+          return NoteCard(
+            note: noteModel, 
+            noteServices: _noteServices, 
+            onNoteEdit: () { 
+              setState(() {});
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  void onExitButtonTapped() async {
+    await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Exit"),
+          content: const Text("Are you sure you want to exit from this appllication?"),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              child: const Text("Confirm"),
+              onPressed: () => Navigator.pushReplacement(
+                context, 
+                MaterialPageRoute(builder: (context) => const LoginPage())
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -121,16 +156,24 @@ class _NotesPageState extends State<NotesPage> {
 
 class NoteCard extends StatelessWidget {
   final NoteModel note;
-  final NoteService notesServices;
-  const NoteCard({super.key, required this.note, required this.notesServices});
+  final NoteServices noteServices;
+  final VoidCallback onNoteEdit;
+
+  const NoteCard({
+    super.key,
+    required this.note,
+    required this.noteServices,
+    required this.onNoteEdit
+  });
 
   @override
   Widget build(BuildContext context) {
     return Dismissible(
-      key: Key(note.id),
+      key: Key(note.id), // Key Harus unik
       confirmDismiss: (direction) => _confirmDismiss(context),
       onDismissed: (direction) async {
-        await notesServices.deleteNotes(noteId: note.id);
+        await noteServices.deleteNotes(noteId: note.id);
+        onNoteEdit();
       },
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
@@ -149,9 +192,9 @@ class NoteCard extends StatelessWidget {
           onTap: () {
             Navigator.push(
               context, 
-              MaterialPageRoute(builder: (context) {
-                return DetailNotePage(note: note);
-              },)
+              MaterialPageRoute(
+                builder: (context) => DetailNotePage(note: note)
+              ),
             );
           },
           title: Text(
@@ -173,10 +216,16 @@ class NoteCard extends StatelessWidget {
             ],
           ),
           trailing: IconButton(
-            onPressed: () {
-              // todo: edit note
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AddNotePage(noteModel: note),
+                )
+              );
+              onNoteEdit();
             },
-            icon: const Icon(Icons.edit_note)
+            icon: const Icon(Icons.edit_document)
           ),
         ),
       ),

@@ -1,7 +1,8 @@
 
 import 'package:flutter/material.dart';
-import 'package:notesapp_flutter/models/response_model.dart';
-import 'package:notesapp_flutter/services/http/user_services.dart';
+import 'package:notesappflutter/models/response_model.dart';
+import 'package:notesappflutter/services/user_services.dart';
+
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -11,9 +12,10 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
+  /* Membuat Instance User Services */
   final UserServices _userServices = UserServices();
-  final GlobalKey<FormState> _registerFormKey = GlobalKey<FormState>();
 
+  final GlobalKey<FormState> _registerFormKey = GlobalKey<FormState>();
   late final TextEditingController _fullnameController;
   late final TextEditingController _usernameController;
   late final TextEditingController _passwordController;
@@ -142,15 +144,21 @@ class _RegisterPageState extends State<RegisterPage> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                        onPressed: _onRegisterButtonTapped,
-                        child: const Text(
-                          "Register",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold
-                          ),
-                        )
+                      onPressed: _onRegisterButtonTapped,
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0), 
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 8.0)
                       ),
+                      child: const Text(
+                        "Register",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold
+                        ),
+                      )
+                    ),
                   ),
 
                   Row(
@@ -176,6 +184,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   void _onRegisterButtonTapped() async {
     if (_registerFormKey.currentState!.validate()){
+      /* register user ke API */
       final ResponseModel response = await _userServices.registerUser(
         fullName: _fullnameController.text, 
         username: _usernameController.text, 
@@ -192,6 +201,7 @@ class _RegisterPageState extends State<RegisterPage> {
             }
           });
           return AlertDialog(
+            /* menampilkan pesan dari server */
             title: Text(response.status),
             content: Text(response.message),
           );

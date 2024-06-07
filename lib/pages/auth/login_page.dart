@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:notesapp_flutter/pages/auth/register_page.dart';
-import 'package:notesapp_flutter/pages/home_page.dart';
-import 'package:notesapp_flutter/services/http/auth_service.dart';
+import 'package:notesappflutter/pages/notes/notes_page.dart';
+import 'package:notesappflutter/pages/auth/register_page.dart';
+import 'package:notesappflutter/services/auth_services.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -11,7 +11,8 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final AuthService _authService = AuthService();
+  final AuthServices _authServices = AuthServices();
+
   bool isObscure = true;
   late final TextEditingController _usernameController;
   late final TextEditingController _passwordController;
@@ -29,7 +30,6 @@ class _LoginPageState extends State<LoginPage> {
     _passwordController.dispose();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -88,6 +88,12 @@ class _LoginPageState extends State<LoginPage> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: _onLoginButtonTapped,
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0), 
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 8.0)
+                    ),
                     child: const Text(
                       "Login",
                       style: TextStyle(
@@ -122,7 +128,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _onLoginButtonTapped() async {
-    final result = await _authService.login(
+    final result = await _authServices.login(
       username: _usernameController.text,
       password: _passwordController.text,
     );
@@ -132,7 +138,7 @@ class _LoginPageState extends State<LoginPage> {
       context: context,
       barrierDismissible: true,
       builder: (BuildContext dialogContext) {
-        Future.delayed(const Duration(seconds: 3), () {
+        Future.delayed(const Duration(seconds: 1), () {
           if (mounted && Navigator.of(dialogContext).canPop()) {
             Navigator.of(dialogContext).pop();
           }
@@ -145,9 +151,10 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     if (result.status == "success" && mounted) {
+      /* pindah ke halaman notes page jika  success */
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const HomePage()),
+        MaterialPageRoute(builder: (context) => const NotesPage()),
       );
     }
   }

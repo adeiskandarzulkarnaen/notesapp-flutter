@@ -1,17 +1,19 @@
 
 import 'package:flutter/material.dart';
-import 'package:notesapp_flutter/models/response_model.dart';
-import 'package:notesapp_flutter/services/http/note_service.dart';
+import 'package:notesappflutter/models/note_model.dart';
+import 'package:notesappflutter/models/response_model.dart';
+import 'package:notesappflutter/services/note_services.dart';
 
 class AddNotePage extends StatefulWidget {
-  const AddNotePage({super.key});
+  final NoteModel? noteModel;
+  const AddNotePage({super.key, this.noteModel});
 
   @override
   State<AddNotePage> createState() => _AddNotePageState();
 }
 
 class _AddNotePageState extends State<AddNotePage> {
-  final NoteService _noteService = NoteService();
+  final NoteServices notesServices = NoteServices();
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late final TextEditingController _titleController;
@@ -24,6 +26,12 @@ class _AddNotePageState extends State<AddNotePage> {
     _titleController = TextEditingController();
     _tagsController = TextEditingController();
     _bodyController = TextEditingController();
+
+    if(widget.noteModel != null) {
+      _titleController.text = widget.noteModel!.title;
+      _tagsController.text = widget.noteModel!.tags.join(', ');
+      _bodyController.text = widget.noteModel!.body;
+    }
   }
 
   @override
@@ -54,7 +62,7 @@ class _AddNotePageState extends State<AddNotePage> {
                     fontWeight: FontWeight.bold,
                   ),
                   decoration: const InputDecoration(
-                    hintText: "title",
+                    hintText: "Title",
                     border: InputBorder.none,
                     hintStyle: TextStyle(
                       fontSize: 32,
@@ -124,19 +132,30 @@ class _AddNotePageState extends State<AddNotePage> {
   }
 
   void _onSaveButtonTapped() async {
-    final ResponseModel response = await _noteService.saveNote(
-      title: _titleController.text, 
-      tags: _tagsController.text, 
-      body: _bodyController.text
-    );
+    final ResponseModel response ;
+    
+    if(widget.noteModel == null) {
+      response = await notesServices.saveNote(
+        title: _titleController.text, 
+        tags: _tagsController.text, 
+        body: _bodyController.text
+      );
+    } else {
+      response = await notesServices.updateNote(
+        noteId: widget.noteModel!.id,
+        title: _titleController.text, 
+        tags: _tagsController.text, 
+        body: _bodyController.text, 
+      );
+    }
 
     if(!mounted) return;
     await showDialog(
       context: context, 
       builder: (context) {
-        Future.delayed(const Duration(seconds: 3), () {
+        Future.delayed(const Duration(seconds: 2), () {
           if (mounted && Navigator.of(context).canPop()) {
-            Navigator.of(context).pop();
+            Navigator.of(context).pop();  /* menghapus Alert Dialog */
           }
         });
         return AlertDialog(
@@ -146,7 +165,9 @@ class _AddNotePageState extends State<AddNotePage> {
       },
     );
 
-    if(!mounted) return;
-    Navigator.pop(context);
+    if (response.status == "success") {
+      if(!mounted) return;
+      Navigator.pop(context); /* pindah ke halaman sebelummnya */
+    }
   }
 }

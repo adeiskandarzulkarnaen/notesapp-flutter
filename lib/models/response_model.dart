@@ -2,7 +2,7 @@
 class ResponseModel {
   final String status;
   final String message;
-  final dynamic data;
+  final dynamic data; // dynamic allow nullable
   ResponseModel({required this.status, required this.message, this.data});
 
   factory ResponseModel.fromJson(Map<String, dynamic> json) {
