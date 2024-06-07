@@ -71,7 +71,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         hintText: "fullname",
                         // labelText: "fullname",
                         border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.badge_outlined)
+                        // prefixIcon: Icon(Icons.badge_outlined)
                       ),
                       validator: (value) {
                         if (value == null ||  value.isEmpty) {
@@ -195,7 +195,7 @@ class _RegisterPageState extends State<RegisterPage> {
       await showDialog(
         context: context, 
         builder: (context) {
-          Future.delayed(const Duration(seconds: 3), () {
+          Future.delayed(const Duration(seconds: 2), () {
             if (mounted && Navigator.of(context).canPop()) {
               Navigator.of(context).pop();
             }
@@ -208,9 +208,10 @@ class _RegisterPageState extends State<RegisterPage> {
         },
       );
       
-      if(response.status != "success") return;
-      if(!mounted) return;
+      if(response.status == "success") {
+        if(!mounted) return;
       Navigator.pop(context);
+      }
     }
   }
 }
