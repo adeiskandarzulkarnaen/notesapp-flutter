@@ -56,35 +56,36 @@ class _NotesPageState extends State<NotesPage> {
         ),
         actions: [
           IconButton(
-            style: const ButtonStyle(
-              iconSize: MaterialStatePropertyAll(28.0),
-              padding: MaterialStatePropertyAll(
-                EdgeInsets.only(
-                  top: 8,
-                  right: 16,
-                  bottom: 8,
-                  left: 8,
-                ),
-              ) 
+            iconSize: 28.0,
+            padding: const EdgeInsets.only(
+              top: 8,
+              right: 16,
+              bottom: 8,
+              left: 8,
             ),
             onPressed: onExitButtonTapped,
             icon: const Icon(Icons.exit_to_app),
           ),
         ],
       ),
-      body: FutureBuilder(
-        future: _noteServices.getNotes(), 
-        builder: (context, snapshot) {
-          if(snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if(snapshot.hasError) {
-            return const Center(child: Text('Error: check your internet connection!!'));
-          } else if(snapshot.hasData) {
-            return noteListBuilder(responseModel: snapshot.data!);
-          } else {
-            return const Center(child: Text("No Data"));
-          }
+      body: RefreshIndicator(
+        onRefresh: () async  { 
+          setState(() {});
         },
+        child: FutureBuilder<ResponseModel>(
+          future: _noteServices.getNotes(), 
+          builder: (context, snapshot) {
+            if(snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if(snapshot.hasError) {
+              return const Center(child: Text('Error: check your internet connection!!'));
+            } else if(snapshot.hasData && snapshot.data != null) {
+              return noteListBuilder(responseModel: snapshot.data!);
+            } else {
+              return const Center(child: Text("No Data"));
+            }
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
@@ -107,23 +108,18 @@ class _NotesPageState extends State<NotesPage> {
       (index) => NoteModel.fromJson(notes[index])
     );
 
-    return RefreshIndicator(
-      onRefresh: () async { 
-        setState(() {});
+    return ListView.builder(
+      itemCount: listOfNoteModel.length,
+      itemBuilder: (context, index) {
+        final noteModel = listOfNoteModel[index];
+        return NoteCard(
+          note: noteModel, 
+          noteServices: _noteServices, 
+          onNoteEdit: () { 
+            setState(() {});
+          },
+        );
       },
-      child: ListView.builder(
-        itemCount: listOfNoteModel.length,
-        itemBuilder: (context, index) {
-          final noteModel = listOfNoteModel[index];
-          return NoteCard(
-            note: noteModel, 
-            noteServices: _noteServices, 
-            onNoteEdit: () { 
-              setState(() {});
-            },
-          );
-        },
-      ),
     );
   }
 

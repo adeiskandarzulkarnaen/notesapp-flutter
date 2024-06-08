@@ -37,7 +37,7 @@ class AuthServices {
     } catch(err) {
       return ResponseModel(
         status: "failed", 
-        message: "tidak dapat terhubung ke server"
+        message: "can't connect to server"
       );
     }
   }

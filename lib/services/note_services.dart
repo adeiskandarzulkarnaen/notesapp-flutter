@@ -9,25 +9,36 @@ import 'package:notesappflutter/utils/configs/api_config.dart';
 class NoteServices {
   final String _baseUrl = "${ApiConfig.baseUrl}/notes";
 
-  Future<ResponseModel> saveNote({required String title, required String tags, required String body}) async {
-    /* merubah string to list dipisahkan dengan coma dan menghapus spasi */
-    List listOfTag = tags.split(",").map((tag) => tag.trim()).toList();
+  Future<ResponseModel> saveNote({
+    required String title,
+    required String tags,
+    required String body
+  }) async {
+    try {
+      /* merubah string to list dipisahkan dengan coma dan menghapus spasi */
+      List listOfTag = tags.split(",").map((tag) => tag.trim()).toList();
 
-    final String? accessToken = await StorageServices.getAccessToken();
-    final response = await http.post(
-      Uri.parse(_baseUrl),
-      headers: {
-        "Content-Type": "application/json; charset=UTF-8",
-        "Authorization": "Bearer $accessToken"
-      },
-      body: jsonEncode({
-        "title": title,
-        "tags": listOfTag, // tags ini harus bertipe List
-        "body": body,
-      }),
-    );
-    final responseJson = jsonDecode(response.body);
-    return ResponseModel.fromJson(responseJson);
+      final String? accessToken = await StorageServices.getAccessToken();
+      final response = await http.post(
+        Uri.parse(_baseUrl),
+        headers: {
+          "Content-Type": "application/json; charset=UTF-8",
+          "Authorization": "Bearer $accessToken"
+        },
+        body: jsonEncode({
+          "title": title,
+          "tags": listOfTag, // tags ini harus bertipe List
+          "body": body,
+        }),
+      );
+      final responseJson = jsonDecode(response.body);
+      return ResponseModel.fromJson(responseJson);
+    } catch(err) {
+      return ResponseModel(
+        status: "failed",
+        message: "can't connect to server"
+      );
+    }
   }
 
   Future<ResponseModel> getNotes() async {
