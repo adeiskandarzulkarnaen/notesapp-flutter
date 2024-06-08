@@ -78,7 +78,7 @@ class _NotesPageState extends State<NotesPage> {
           if(snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if(snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return const Center(child: Text('Error: check your internet connection!!'));
           } else if(snapshot.hasData) {
             return noteListBuilder(responseModel: snapshot.data!);
           } else {
